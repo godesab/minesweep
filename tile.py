@@ -6,18 +6,16 @@ Created on Sat Jan 19 17:51:21 2019
 """
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
-from numpy import array as nparr
-import random
 
 
 class BaseTile(QLabel):
     def __init__(self, grid=None, parent=None):
         super().__init__()
         # TILE ICONS
-        self.baseicon   = QPixmap('img//basetile_50.png')
-        self.emptyicon  = QPixmap('img//emptytile_50.png')
-        self.markicon   = QPixmap('img//marktile_50.png')
-        self.boomicon   = QPixmap('img//boomtile_50.png')
+        self.baseicon = QPixmap('img//basetile_50.png')
+        self.markicon = QPixmap('img//marktile_50.png')
+        self.boomicon = QPixmap('img//boomtile_50.png')
+        self.emptyicon = QPixmap('img//emptytile_50.png')
         self.tile1_icon = QPixmap('img//1_tile_50.png')
         self.tile2_icon = QPixmap('img//2_tile_50.png')
         self.tile3_icon = QPixmap('img//3_tile_50.png')
@@ -26,24 +24,25 @@ class BaseTile(QLabel):
         self.tile6_icon = QPixmap('img//6_tile_50.png')
         self.tile7_icon = QPixmap('img//7_tile_50.png')
         self.tile8_icon = QPixmap('img//8_tile_50.png')
-        # ICON SIZE POLICY
         self.setPixmap(self.baseicon)
+        # grid means x,y position on grid. To be changed (pos() is QObject attribute alrdy)
         self.grid = grid
-        self.grid_arr = nparr(self.grid)
         # BOOLEAN STATES
-        self.markable =   True
-        self.checked  =   False
+        self.markable = True
+        self.checked = False
         self.marked = False
 
     def check_adj_tile_count(self):
+        # TODO CURRENTLY NOT WORKING WITH BIGGER PLAYBOARDS
         if self.grid is not None:
-            if(
-                    self.grid == (0, 0) or self.grid == (0, 8)
-                    or self.grid == (8, 0) or self.grid == (8, 8)):
+            # TILE IS IN A CORNER
+            if (self.grid == (0, 0) or self.grid == (0, 8) or
+                    self.grid == (8, 0) or self.grid == (8, 8)):
                 return 3
+            # TILE IS AT AN EDGE
             elif self.grid[0] == 0 or self.grid[0] == 8 and self.grid[1] > 0 and self.grid[1] < 8:
                 return 5
-            elif self.grid[1] == 0 or self.grid[1] == 8 and  self.grid[0] > 0 and self.grid[0] < 8:
+            elif self.grid[1] == 0 or self.grid[1] == 8 and self.grid[0] > 0 and self.grid[0] < 8:
                 return 5
             else:
                 return 8
@@ -52,6 +51,7 @@ class BaseTile(QLabel):
         return "JustATile"
 
     def check(self):
+        # OVERRIDE IN SUBCLASS
         pass
 
     def mark(self):
@@ -73,9 +73,7 @@ class EmptyTile(BaseTile):
         self.is_mine = False
         self.adj_mines = None
         self.adj_empty = None
-        self.freebie = False
         self.grid = grid
-        self.grid_arr = nparr(self.grid)
         self.adj_tiles = self.check_adj_tile_count()
 
     def set_adj_mine_count(self, count):
@@ -106,7 +104,6 @@ class EmptyTile(BaseTile):
         if self.checked is False:
             self.setPixmap(self.emptyicon)
         self.checked = True
-        self.freebie = True
         self.adj_mines = 0
 
     def set_1_tile(self):
@@ -138,12 +135,11 @@ class MineTile(BaseTile):
 
     def __init__(self, grid, parent=None):
         super().__init__()
-        self.is_mine    = True
-        self.adj_tiles  = self.check_adj_tile_count()
-        self.adj_empty  = None
-        self.adj_mines  = None
+        self.is_mine = True
+        self.adj_tiles = self.check_adj_tile_count()
+        self.adj_empty = None
+        self.adj_mines = None
         self.grid = grid
-        self.grid_arr = nparr(self.grid)
         self.adj_tiles = self.check_adj_tile_count()
 
     def check(self):
