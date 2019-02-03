@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 19 17:51:21 2019
 
-@author: AC
-"""
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 

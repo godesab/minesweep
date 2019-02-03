@@ -9,6 +9,7 @@ class AI:
 
     def __init__(self, playboard=None):
         # Playboard size and mine count
+        # Initial values will be corrected in init_playboard function
         self.playboard = playboard
         self.rows = 1
         self.cols = 1
@@ -17,21 +18,17 @@ class AI:
         # AI action count related
         self.initial_action = True
         self.tiles_opened = 0
-        # Mine probability array for all tiles in playboard
-        self.mines_found = 0
+        # TODO: Mine probability array for all tiles in playboard
         # Lists
         self.tiles = {}
         self.mine_list = []
         self.mine_marked_list = []
         self.clicked = []
         self.label_tiles = []
-        self.init_stuff()
+        self.init_playboard()
         # Flags
         self.new_mine_flag = False
         self.new_empty_flag = False
-
-    def init_stuff(self):
-        self.init_playboard()
 
     def init_playboard(self):
         if self.playboard is not None:
@@ -95,15 +92,17 @@ class AI:
                 pos = (x, y)
                 tile = self.tiles[pos]
                 if tile.checked:
-                    seq1 = self.directions(pos)
-                    seq2 = self.directions(pos)
+                    seq = self.directions(pos)
+                    # Add every 0-tile to que
                     if tile.label is 0:
-                        for elem in seq1:
+                        for elem in seq:
                             if elem not in que and elem not in self.clicked:
                                 que.append(elem)
+                    # Can be combined to one if expression, " if tile.label is 0 or tile.label == tile.adj_mines: "
+                    # Using if - elif keeps tile opening orded prettier
                     elif tile.label > 0:
                         if tile.label == tile.adj_mines:
-                            for e in seq2:
+                            for e in seq:
                                 if e not in que and e not in self.clicked and e not in self.mine_list:
                                     que.append(e)
         if len(que) > 0:
@@ -168,6 +167,7 @@ class AI:
         seq = [upleft_lst, up_lst, upright_lst, right_lst,
                downright_lst, down_lst, downleft_lst, left_lst]
         ret = []
+        # Return only valid tile positions
         for lst in seq:
             if lst[0] >= 0 and lst[1] >= 0:
                 if lst[0] < limit_r and lst[1] < limit_c:
@@ -187,18 +187,11 @@ class AI:
             seq = self.directions(pos)
             adj_unchecked = tile.adj_unchecked
             adj_mines = tile.adj_mines
-            if adj_mines is 0 and label == adj_unchecked:
-                # MINE DETECTED
-                for cand in seq:
-                    if self.tiles[cand].checked is False and cand not in self.mine_list:
-                        self.mine_list.append(cand)
+            if label - adj_mines == adj_unchecked:
+                for unc in seq:
+                    if self.tiles[unc].checked is False and unc not in self.mine_list:
+                        self.mine_list.append(unc)
                         self.new_mine_flag = True
-            elif adj_mines > 0:
-                if (label - adj_mines) == adj_unchecked:
-                    for unc in seq:
-                        if self.tiles[unc].checked is False and unc not in self.mine_list:
-                            self.mine_list.append(unc)
-                            self.new_mine_flag = True
 
     def mark_mines(self):
         for mine in self.mine_list:
